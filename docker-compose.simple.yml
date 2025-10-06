@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # 主应用服务
+  frigate-config-ui:
+    container_name: frigate-config-ui
+    image: ${IMAGE_REGISTRY:-ghcr.io/sunvidwong}/frigate-config-ui:${MAIN_TAG:-latest}
+    restart: unless-stopped
+    pull_policy: always
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - PORT=3000
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    ports:
+      - "${HTTP_PORT:-80}:3000"
+    networks:
+      - frigate-network
+
+  # 数据库服务
+  postgres:
+    container_name: frigate-postgres
+    image: postgres:${POSTGRES_TAG:-15-alpine}
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_DB=${POSTGRES_DB:-frigate_config}
+      - POSTGRES_USER=${POSTGRES_USER:-frigate}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your_password_here}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - frigate-network
+
+  # 缓存服务
+  redis:
+    container_name: frigate-redis
+    image: redis:${REDIS_TAG:-7-alpine}
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - frigate-network
+
+networks:
+  frigate-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

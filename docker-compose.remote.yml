@@ -1,0 +1,402 @@
+# Frigate Configuration UI - 远程部署配置
+# 使用预构建镜像，支持自动拉取和更新
+version: '3.8'
+
+services:
+  frigate-config-ui:
+    container_name: frigate-config-ui
+    image: ${DOCKER_REGISTRY:-ghcr.io/sunvidwong}/frigate-config-ui:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    
+    # 如果镜像是私有的，先 docker login ghcr.io 再 compose up
+    environment:
+      - TZ=Asia/Shanghai
+      - NODE_ENV=production
+      - PORT=5550
+      - HOST=0.0.0.0
+      
+      # 数据库配置
+      - DATABASE_URL=postgresql://frigate:${POSTGRES_PASSWORD}@postgres:5432/frigate_config
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=frigate_config
+      - DB_USER=frigate
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      
+      # Redis 配置
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      
+      # 安全配置
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      
+      # Frigate 配置
+      - FRIGATE_URL=${FRIGATE_URL:-http://frigate:5000}
+      - FRIGATE_API_KEY=${FRIGATE_API_KEY}
+      
+      # 应用配置
+      - DOMAIN=${DOMAIN:-localhost}
+      - HTTPS_ENABLED=${HTTPS_ENABLED:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - MAX_UPLOAD_SIZE=${MAX_UPLOAD_SIZE:-10mb}
+      
+      # 监控配置
+      - ENABLE_METRICS=${ENABLE_METRICS:-true}
+      - METRICS_PORT=9464
+
+    volumes:
+      # 配置文件和数据持久化
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+
+    ports:
+      - "127.0.0.1:5550:5550"  # 仅本地访问，通过 Nginx 代理
+      - "127.0.0.1:9464:9464"  # 监控指标端口
+      
+    networks:
+      - frigate-network
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+        
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5550/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+        
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
+
+  nginx:
+    container_name: frigate-nginx
+    image: ${DOCKER_REGISTRY:-nginx}:${NGINX_TAG:-1.25-alpine}
+    restart: unless-stopped
+    
+    environment:
+      - TZ=Asia/Shanghai
+      
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx:rw
+      
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      
+    networks:
+      - frigate-network
+      
+    depends_on:
+      frigate-config-ui:
+        condition: service_healthy
+        
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+      
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  redis:
+    container_name: frigate-redis
+    image: ${DOCKER_REGISTRY:-redis}:${REDIS_TAG:-7.2-alpine}
+    restart: unless-stopped
+    
+    environment:
+      - TZ=Asia/Shanghai
+      
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --tcp-keepalive 300
+      --timeout 0
+      
+    volumes:
+      - redis-data:/data
+      
+    ports:
+      - "127.0.0.1:6379:6379"  # 仅本地访问
+      
+    networks:
+      - frigate-network
+      
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+      
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  postgres:
+    container_name: frigate-postgres
+    image: ${DOCKER_REGISTRY:-postgres}:${POSTGRES_TAG:-15.4-alpine}
+    restart: unless-stopped
+    
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_DB=frigate_config
+      - POSTGRES_USER=frigate
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      # 性能优化配置
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+      
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      
+    ports:
+      - "127.0.0.1:5432:5432"  # 仅本地访问
+      
+    networks:
+      - frigate-network
+      
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U frigate -d frigate_config"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  watchtower:
+    container_name: frigate-watchtower
+    image: containrrr/watchtower:${WATCHTOWER_TAG:-latest}
+    restart: unless-stopped
+    
+    environment:
+      - TZ=Asia/Shanghai
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_REMOVE_VOLUMES=false
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_POLL_INTERVAL=${UPDATE_INTERVAL:-3600}  # 1小时检查一次
+      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS:-shoutrrr}
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL}
+      - WATCHTOWER_SCHEDULE=${WATCHTOWER_SCHEDULE:-0 2 * * *}  # 每天凌晨2点更新
+      - WATCHTOWER_ROLLING_RESTART=true
+      - WATCHTOWER_TIMEOUT=300s
+      - WATCHTOWER_LOG_LEVEL=${WATCHTOWER_LOG_LEVEL:-info}
+      
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+    networks:
+      - frigate-network
+      
+    profiles:
+      - auto-update
+      
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  healthcheck:
+    container_name: frigate-healthcheck
+    image: ${DOCKER_REGISTRY:-curlimages}/curl:${CURL_TAG:-latest}
+    restart: unless-stopped
+    
+    environment:
+      - TZ=Asia/Shanghai
+      
+    command: >
+      sh -c "
+      while true; do
+        echo '[$(date)] 开始健康检查...'
+        
+        # 检查主应用
+        if curl -f http://frigate-config-ui:5550/api/health > /dev/null 2>&1; then
+          echo '[$(date)] ✅ 主应用健康'
+        else
+          echo '[$(date)] ❌ 主应用异常'
+        fi
+        
+        # 检查 Nginx
+        if curl -f http://nginx:80/health > /dev/null 2>&1; then
+          echo '[$(date)] ✅ Nginx 健康'
+        else
+          echo '[$(date)] ❌ Nginx 异常'
+        fi
+        
+        # 检查数据库连接
+        if nc -z postgres 5432; then
+          echo '[$(date)] ✅ 数据库连接正常'
+        else
+          echo '[$(date)] ❌ 数据库连接异常'
+        fi
+        
+        # 检查 Redis 连接
+        if nc -z redis 6379; then
+          echo '[$(date)] ✅ Redis 连接正常'
+        else
+          echo '[$(date)] ❌ Redis 连接异常'
+        fi
+        
+        echo '[$(date)] 健康检查完成，等待下次检查...'
+        sleep ${HEALTH_CHECK_INTERVAL:-300}
+      done"
+      
+    volumes:
+      - ./logs/healthcheck:/var/log:rw
+      
+    networks:
+      - frigate-network
+      
+    depends_on:
+      - frigate-config-ui
+      - nginx
+      - postgres
+      - redis
+      
+    profiles:
+      - monitoring
+      
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: '0.05'
+          
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+# 网络配置
+networks:
+  frigate-network:
+    driver: bridge
+    name: frigate-remote-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1
+    driver_opts:
+      com.docker.network.bridge.name: frigate-remote-br0
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+
+# 数据卷配置
+volumes:
+  postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/postgres
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/redis
+
+# 扩展配置
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+    compress: "true"
+
+x-restart-policy: &default-restart-policy
+  restart_policy:
+    condition: on-failure
+    delay: 5s
+    max_attempts: 3
+    window: 120s
+
+x-healthcheck-defaults: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 30s
