@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 CONTAINER_NAME="frigate-config-ui"
 IMAGE_NAME="ghcr.io/sunvidwong/frigate-config-ui:latest"
 HOST_PORT="80"
-CONTAINER_PORT="3000"
+CONTAINER_PORT="5550"
 DATA_DIR="./data"
 CONFIG_DIR="./config"
 

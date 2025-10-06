@@ -30,33 +30,100 @@
 ## 🚀 快速开始
 
 ### 环境要求
-- Node.js 18+
-- npm 或 yarn
+- Docker 20.10+
+- Docker Compose 2.0+
 - Git
 
-### 安装和运行
+### 远程镜像部署
 
 ```bash
 # 克隆仓库
 git clone https://github.com/SunvidWong/Frigate-Configuration-UI.git
 cd Frigate-Configuration-UI
 
-# 安装依赖
-npm install
-npm run install-server  # 安装后端依赖
+# 使用远程部署配置
+cp .env.remote .env
 
-# 启动开发环境
-npm run dev-full  # 同时启动前后端
+# 编辑配置文件
+nano .env
 
-# 或者分别启动
-npm run server-dev  # 终端1: 启动后端服务
-npm run dev          # 终端2: 启动前端开发服务器
+# 启动服务
+docker-compose -f docker-compose.remote.yml up -d
 ```
 
+提示：远程部署时，配置文件与数据会通过 Docker 卷在宿主机持久化（见 `docker-compose.remote.yml` 的 `volumes` 配置，包含 `./config`、`./data`、`./uploads`、`./logs` 等目录）。无需本地构建，使用预构建镜像即可完成远程部署。
+
+#### Docker Compose 示例
+
+如需在 README 中直接查看并复制最小化 Compose 示例，可参考以下配置（使用 GHCR 镜像、统一应用端口为 `5550`）：
+
+```yaml
+services:
+  frigate-config-ui:
+    image: ghcr.io/sunvidwong/frigate-config-ui:latest
+    container_name: frigate-config-ui
+    environment:
+      - NODE_ENV=production
+      - PORT=5550
+      - TZ=Asia/Shanghai
+    ports:
+      - "${HTTP_PORT:-80}:5550"
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./redis-data:/data
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=frigate
+      - POSTGRES_PASSWORD=change-me
+      - POSTGRES_DB=frigate
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U frigate"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+networks:
+  default:
+    name: frigate-network
+```
+
+运行：
+
+```bash
+docker compose up -d
+```
+
+提示：如需完整的远程部署（包含 Nginx、监控、Watchtower 自动更新等），请直接使用仓库内的 `docker-compose.remote.yml` 并参考 `DEPLOYMENT-QUICKSTART.md`。
+
 ### 访问应用
-- 🌐 **前端界面**: http://localhost:5173
-- 📡 **后端API**: http://localhost:8000
-- 🔌 **WebSocket**: ws://localhost:8000
+- 🌐 **Web界面**: http://your-domain.com 或 http://server-ip
+- 📡 **API接口**: http://your-domain.com/api
+- 🔌 **WebSocket**: ws://your-domain.com/ws
 
 ## 📖 使用指南
 
@@ -143,12 +210,12 @@ npm run build
 
 ### 环境变量
 
-复制 `.env.example` 到 `.env.local` 并配置：
+复制 `.env.example` 到 `.env` 并配置：
 
 ```env
 # API配置
-VITE_API_BASE_URL=http://localhost:8000
-VITE_WS_HOST=localhost:8000
+VITE_API_BASE_URL=http://your-domain.com/api
+VITE_WS_HOST=your-domain.com
 
 # 应用配置
 VITE_APP_TITLE=Frigate Configuration UI
@@ -156,10 +223,10 @@ VITE_APP_VERSION=1.0.0
 
 # 功能开关
 VITE_ENABLE_MOCK_DATA=false
-VITE_ENABLE_DEBUG=true
+VITE_ENABLE_DEBUG=false
 
 # 安全配置
-VITE_ENABLE_HTTPS=false
+VITE_ENABLE_HTTPS=true
 ```
 
 ### API文档
@@ -184,7 +251,7 @@ VITE_ENABLE_HTTPS=false
 
 ### WebSocket事件
 
-连接地址: `ws://localhost:8000`
+连接地址: `ws://your-domain.com/ws`
 
 支持的事件类型：
 - `system_status_update` - 系统状态更新
@@ -388,43 +455,17 @@ crontab -e
 # 添加：0 3 * * * /path/to/Frigate-Configuration-UI/scripts/backup.sh >> /var/log/frigate-backup.log 2>&1
 ```
 
-### 🚀 本地快速部署
+### 🚀 远程镜像部署（推荐）
 
-#### 方式1：使用Docker Compose（推荐）
+#### 方式1：使用远程镜像（推荐生产环境）
+
+使用预构建的远程镜像，支持自动拉取和更新：
 
 ```bash
 # 克隆仓库
 git clone https://github.com/SunvidWong/Frigate-Configuration-UI.git
 cd Frigate-Configuration-UI
 
-# 复制环境变量配置
-cp .env.docker .env
-
-# 启动基础服务
-docker-compose up -d
-
-# 查看服务状态
-docker-compose ps
-
-# 查看日志
-docker-compose logs -f frigate-config-ui
-```
-
-#### 方式2：启用完整服务栈（包含数据库和监控）
-
-```bash
-# 启动所有服务（包含数据库、监控）
-docker-compose --profile database --profile monitoring up -d
-
-# 查看所有服务
-docker-compose ps
-```
-
-#### 方式3：远程镜像部署（推荐生产环境）
-
-使用预构建的远程镜像，支持自动拉取和更新：
-
-```bash
 # 使用远程部署配置
 cp .env.remote .env
 
@@ -446,6 +487,16 @@ docker-compose -f docker-compose.remote.yml --profile auto-update up -d
 docker-compose -f docker-compose.remote.yml --profile monitoring up -d
 ```
 
+#### 方式2：启用完整服务栈（包含数据库和监控）
+
+```bash
+# 启动所有服务（包含数据库、监控）
+docker-compose -f docker-compose.remote.yml --profile database --profile monitoring up -d
+
+# 查看所有服务
+docker-compose ps
+```
+
 **一键部署脚本：**
 ```bash
 # 使用提供的部署脚本
@@ -458,7 +509,7 @@ chmod +x deploy-remote.sh
 ./deploy-remote.sh status  # 查看服务状态
 ```
 
-#### 方式4：单独使用Docker
+#### 方式3：单独使用Docker（本地/调试）
 
 ```bash
 # 使用远程镜像（推荐）
@@ -467,12 +518,12 @@ docker pull sunvidwong/frigate-config-ui:latest
 # 运行容器
 docker run -d \
   --name frigate-config-ui \
-  -p 8000:8000 \
+  -p 5550:5550 \
   -e NODE_ENV=production \
-  -e PORT=8000 \
+  -e PORT=5550 \
   -v $(pwd)/config:/app/config \
   --restart unless-stopped \
-  frigate-config-ui
+  sunvidwong/frigate-config-ui:latest
 ```
 
 ### 📁 服务架构
@@ -481,7 +532,7 @@ docker run -d \
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │     Nginx       │    │  Frigate UI     │    │     Redis       │
 │   (反向代理)     │───▶│   (主应用)       │───▶│   (缓存)         │
-│   :80, :443     │    │   :8000         │    │   :6379         │
+│   :80, :443     │    │   :5550         │    │   :6379         │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                                 │
                        ┌─────────────────┐
@@ -497,11 +548,12 @@ docker run -d \
 
 1. **环境变量文件 (`.env`)**
 ```bash
-# 远程镜像部署（推荐）
+# 选择一个环境模板（二选一，不要互相覆盖）
+# 远程部署（推荐生产）
 cp .env.remote .env
 
-# 生产环境
-cp .env.production .env
+# 或使用完整生产栈（包含数据库与监控）
+# cp .env.production .env
 
 # 编辑配置
 nano .env
@@ -522,7 +574,7 @@ cp your-key.pem ssl/key.pem
 **基础配置：**
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `DOMAIN` | `localhost` | 域名配置 |
+| `DOMAIN` | `your-domain.com` | 域名配置 |
 | `NODE_ENV` | `production` | 运行环境 |
 | `PORT` | `8000` | 应用端口 |
 | `HTTPS_ENABLED` | `false` | 是否启用HTTPS |
@@ -530,8 +582,8 @@ cp your-key.pem ssl/key.pem
 **数据库配置：**
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `POSTGRES_PASSWORD` | `frigate123` | PostgreSQL数据库密码 |
-| `REDIS_PASSWORD` | `frigate123` | Redis缓存密码 |
+| `POSTGRES_PASSWORD` | 无默认值（必须设置） | PostgreSQL数据库密码 |
+| `REDIS_PASSWORD` | 无默认值（必须设置） | Redis缓存密码 |
 
 **安全配置：**
 | 配置项 | 说明 |
@@ -554,13 +606,13 @@ cp your-key.pem ssl/key.pem
 
 | 服务 | 地址 | 说明 |
 |------|------|------|
-| **主应用** | http://localhost | 通过Nginx代理访问 |
-| **API接口** | http://localhost/api | RESTful API |
-| **WebSocket** | ws://localhost/ws | 实时数据连接 |
-| **Redis** | localhost:6379 | 缓存服务 |
-| **PostgreSQL** | localhost:5432 | 数据库服务 |
-| **Grafana** | http://localhost:3000 | 监控面板 |
-| **Prometheus** | http://localhost:9090 | 指标收集 |
+| **主应用** | http://your-domain.com | 通过Nginx代理访问 |
+| **API接口** | http://your-domain.com/api | RESTful API |
+| **WebSocket** | ws://your-domain.com/ws | 实时数据连接 |
+| **Redis** | redis:6379 | 内部服务（容器网络），不建议公网暴露 |
+| **PostgreSQL** | postgres:5432 | 内部服务（容器网络），不建议公网暴露 |
+| **Grafana** | http://your-domain.com:3000 | 监控面板 |
+| **Prometheus** | http://your-domain.com:9090 | 指标收集 |
 
 ### 📊 监控和管理
 
@@ -656,8 +708,9 @@ docker pull sunvidwong/frigate-config-ui:latest
 # 直接运行
 docker run -d \
   --name frigate-config-ui \
-  -p 8000:8000 \
+  -p 5550:5550 \
   -e NODE_ENV=production \
+  -e PORT=5550 \
   sunvidwong/frigate-config-ui:latest
 ```
 
@@ -797,8 +850,8 @@ docker-compose -f docker-compose.prod.yml ps
 docker-compose -f docker-compose.prod.yml logs frigate-config-ui
 
 # 检查端口占用
-sudo netstat -tulpn | grep :8000
-sudo lsof -i :8000
+sudo netstat -tulpn | grep :5550
+sudo lsof -i :5550
 
 # 解决方案：
 # - 修改端口映射
