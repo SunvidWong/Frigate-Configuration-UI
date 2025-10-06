@@ -1,6 +1,6 @@
 # Docker 部署指南
 
-## 方式3: 单独使用Docker
+## 方式3: 单独使用 Docker
 
 这是最简单的部署方式，只需要一个Docker容器即可运行应用。
 
@@ -19,18 +19,18 @@ chmod +x docker-run.sh
 ./docker-run.sh
 ```
 
-#### 方法2: 手动Docker命令
+#### 方法2: 手动 Docker 命令
 
 ```bash
 # 构建镜像（如果需要本地构建）
 docker build -t frigate-config-ui .
 
-# 运行容器
+# 运行容器（使用 GHCR 镜像，端口统一为 5550）
 docker run -d \
   --name frigate-config-ui \
-  -p 80:3000 \
+  -p 5550:5550 \
   -e NODE_ENV=production \
-  -e PORT=3000 \
+  -e PORT=5550 \
   -e TZ=Asia/Shanghai \
   -v $(pwd)/config:/app/config \
   -v $(pwd)/data:/app/data \
@@ -41,8 +41,8 @@ docker run -d \
 ### 📦 镜像信息
 
 - **镜像地址**: `ghcr.io/sunvidwong/frigate-config-ui:latest`
-- **容器端口**: 3000
-- **主机端口**: 80 (可自定义)
+- **容器端口**: 5550
+- **主机端口**: 5550 (可自定义)
 
 ### 🔧 管理命令
 
@@ -81,9 +81,9 @@ project/
 
 部署完成后，可以通过以下地址访问：
 
-- **本地访问**: http://localhost
-- **远程访问**: http://your-server-ip
-- **域名访问**: http://your-domain.com
+- **本地访问**: http://localhost:5550
+- **远程访问**: http://your-server-ip:5550
+- **域名访问**: http://your-domain.com (如经反向代理，可为 80/443)
 
 ### 🔄 更新应用
 
@@ -116,7 +116,7 @@ docker exec -it frigate-config-ui sh
 ```
 
 #### 端口冲突
-如果80端口被占用，可以修改脚本中的 `HOST_PORT` 变量：
+如果 5550 或您设置的主机端口被占用，可以修改脚本中的 `HOST_PORT` 变量：
 
 ```bash
 # 编辑脚本
@@ -124,6 +124,14 @@ nano docker-run.sh
 
 # 修改端口
 HOST_PORT="8080"
+
+#### 容器名冲突
+如出现 “container name "frigate-config-ui" is already in use” 错误：
+```bash
+docker rm -f frigate-config-ui  # 清理已有容器
+# 或使用不同容器名：去掉 --name 或更换名称
+docker run -d -p 5550:5550 ghcr.io/sunvidwong/frigate-config-ui:latest
+```
 ```
 
 ### ⚙️ 环境变量
@@ -131,7 +139,15 @@ HOST_PORT="8080"
 | 变量名 | 默认值 | 说明 |
 |--------|--------|------|
 | NODE_ENV | production | 运行环境 |
-| PORT | 3000 | 容器内端口 |
+| PORT | 5550 | 容器内端口 |
+
+### 🔑 GHCR 登录（如为私有镜像）
+
+```bash
+echo "$GHCR_TOKEN" | docker login ghcr.io -u sunvidwong --password-stdin
+```
+
+登录成功后再执行 `docker pull ghcr.io/sunvidwong/frigate-config-ui:latest` 或上述运行命令。
 | TZ | Asia/Shanghai | 时区设置 |
 
 ### 🔒 安全建议

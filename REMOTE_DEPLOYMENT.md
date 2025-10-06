@@ -132,6 +132,8 @@ docker-compose -f docker-compose.prod.yml ps
 docker-compose -f docker-compose.prod.yml logs -f
 ```
 
+> 提示：如使用较新的命令形式，可将以上命令中的 `docker-compose` 替换为 `docker compose`。
+
 #### 步骤 6: 配置防火墙
 
 ```bash
@@ -267,6 +269,35 @@ copilot svc init --name web --svc-type "Backend Service"
 copilot svc deploy --name web --env production
 ```
 
+---
+
+## 🔒 GHCR 镜像与环境加载
+
+- 如镜像托管在 GHCR 且为私有，请先登录：
+  ```bash
+  echo "$GHCR_TOKEN" | docker login ghcr.io -u sunvidwong --password-stdin
+  ```
+
+  登录后再执行拉取或启动命令。
+
+- 建议使用环境文件统一变量：
+  ```bash
+  docker compose --env-file .env.remote -f docker-compose.remote.yml up -d
+  ```
+  或将变量写入 `.env`，Compose 会自动加载。
+
+## 🐛 常见故障排查
+
+- 容器名冲突：
+  如遇到 `container name "frigate-config-ui" is already in use`，执行：
+  ```bash
+  docker rm -f frigate-config-ui
+  ```
+  并确保 Compose 文件中不显式设置 `container_name`（已在示例中移除），以避免重名冲突。
+
+- 拉取来源错误：
+  若看到从 Docker Hub 拉取失败，请确认 `.env.remote` 中的镜像来源（GHCR）已加载，或在 Compose 中显式指定 `ghcr.io/sunvidwong/...`。
+
 ### Copilot 配置文件
 
 `copilot/web/copilot.yml`:
@@ -336,7 +367,7 @@ services:
   frigate-config-ui:
     image: your-username/frigate-ui:latest
     ports:
-      - "80:8000"
+      - "127.0.0.1:5550:5550"  # 仅本地绑定，由 Nginx 代理对外暴露 80/443
     environment:
       - NODE_ENV=production
       - POSTGRES_URL=postgresql://user:pass@postgres:5432/frigate
