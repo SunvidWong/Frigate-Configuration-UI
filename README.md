@@ -120,6 +120,26 @@ docker compose up -d
 
 提示：如需完整的远程部署（包含 Nginx、监控、Watchtower 自动更新等），请直接使用仓库内的 `docker-compose.remote.yml` 并参考 `DEPLOYMENT-QUICKSTART.md`。
 
+## 本地部署测试
+
+为方便在本机快速验证最小可运行栈，新增了测试脚本：`scripts/local-test.sh`。
+
+- 启动并健康检查：
+  - `bash scripts/local-test.sh up`
+- 仅健康检查：
+  - `bash scripts/local-test.sh check`
+- 查看关键服务日志：
+  - `bash scripts/local-test.sh logs`
+- 停止容器（保留数据卷）：
+  - `bash scripts/local-test.sh down`
+- 停止并删除数据卷（慎用）：
+  - `bash scripts/local-test.sh reset`
+
+说明：
+- 脚本默认使用 `docker-compose.yml` 并启用 `database` profile；如需仅运行应用，可手动去掉脚本中的 `--profile database` 或直接运行 `docker compose -f docker-compose.yml up -d`。
+- 首次运行会生成 `.env.local`，包含基础变量（例如 `HTTP_PORT=8000`、`POSTGRES_PASSWORD=frigate123`）。如需使用外部数据库/Redis，修改 `.env.local` 中连接信息并在 Compose 中移除对应服务。
+- 健康检查包含：应用 `GET /api/health`、Postgres `pg_isready`、Redis `redis-cli ping`。
+
 ### 访问应用
 - 🌐 **Web界面**: http://your-domain.com 或 http://server-ip
 - 📡 **API接口**: http://your-domain.com/api
