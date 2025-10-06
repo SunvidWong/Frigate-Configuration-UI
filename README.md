@@ -195,32 +195,200 @@ VITE_ENABLE_HTTPS=false
 
 ## 🐳 Docker部署
 
-### 构建Docker镜像
+### 🚀 快速部署
+
+#### 方式1：使用Docker Compose（推荐）
 
 ```bash
-# 构建应用
+# 克隆仓库
+git clone https://github.com/SunvidWong/Frigate-Configuration-UI.git
+cd Frigate-Configuration-UI
+
+# 复制环境变量配置
+cp .env.docker .env
+
+# 启动基础服务
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f frigate-config-ui
+```
+
+#### 方式2：启用完整服务栈（包含数据库和监控）
+
+```bash
+# 启动所有服务（包含数据库、监控）
+docker-compose --profile database --profile monitoring up -d
+
+# 查看所有服务
+docker-compose ps
+```
+
+#### 方式3：单独使用Docker
+
+```bash
+# 构建镜像
 docker build -t frigate-config-ui .
 
 # 运行容器
-docker run -p 8000:8000 frigate-config-ui
+docker run -d \
+  --name frigate-config-ui \
+  -p 8000:8000 \
+  -e NODE_ENV=production \
+  -e PORT=8000 \
+  -v $(pwd)/config:/app/config \
+  --restart unless-stopped \
+  frigate-config-ui
 ```
 
-### Docker Compose
+### 📁 服务架构
 
-```yaml
-version: '3.8'
-services:
-  frigate-config-ui:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - NODE_ENV=production
-      - PORT=8000
-    volumes:
-      - ./config:/app/config
-    restart: unless-stopped
 ```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│     Nginx       │    │  Frigate UI     │    │     Redis       │
+│   (反向代理)     │───▶│   (主应用)       │───▶│   (缓存)         │
+│   :80, :443     │    │   :8000         │    │   :6379         │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                       ┌─────────────────┐
+                       │   PostgreSQL    │
+                       │   (数据库)       │
+                       │   :5432         │
+                       └─────────────────┘
+```
+
+### 🔧 环境配置
+
+#### 必需配置文件
+
+1. **环境变量文件 (`.env`)**
+```bash
+# 复制模板
+cp .env.docker .env
+
+# 编辑配置
+nano .env
+```
+
+2. **SSL证书（可选）**
+```bash
+# 创建SSL目录
+mkdir -p ssl
+
+# 放置证书文件
+cp your-cert.pem ssl/cert.pem
+cp your-key.pem ssl/key.pem
+```
+
+#### 主要配置项
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `POSTGRES_PASSWORD` | `frigate123` | PostgreSQL数据库密码 |
+| `REDIS_PASSWORD` | `frigate123` | Redis缓存密码 |
+| `GRAFANA_PASSWORD` | `admin123` | Grafana监控面板密码 |
+| `NODE_ENV` | `production` | 运行环境 |
+| `PORT` | `8000` | 应用端口 |
+
+### 🌐 访问地址
+
+部署完成后，您可以通过以下地址访问各个服务：
+
+| 服务 | 地址 | 说明 |
+|------|------|------|
+| **主应用** | http://localhost | 通过Nginx代理访问 |
+| **API接口** | http://localhost/api | RESTful API |
+| **WebSocket** | ws://localhost/ws | 实时数据连接 |
+| **Redis** | localhost:6379 | 缓存服务 |
+| **PostgreSQL** | localhost:5432 | 数据库服务 |
+| **Grafana** | http://localhost:3000 | 监控面板 |
+| **Prometheus** | http://localhost:9090 | 指标收集 |
+
+### 📊 监控和管理
+
+#### 查看服务状态
+```bash
+# 查看所有服务状态
+docker-compose ps
+
+# 查看特定服务日志
+docker-compose logs -f frigate-config-ui
+docker-compose logs -f nginx
+docker-compose logs -f redis
+```
+
+#### 服务管理
+```bash
+# 重启服务
+docker-compose restart frigate-config-ui
+
+# 停止所有服务
+docker-compose down
+
+# 完全清理（包括数据卷）
+docker-compose down -v
+```
+
+#### 数据备份
+```bash
+# 备份数据库
+docker-compose exec postgres pg_dump -U frigate frigate_config > backup.sql
+
+# 备份Redis数据
+docker-compose exec redis redis-cli BGSAVE
+```
+
+### 🔒 安全配置
+
+#### 启用HTTPS（可选）
+1. 将SSL证书放置在 `ssl/` 目录
+2. 修改 `nginx.conf` 启用HTTPS配置
+3. 更新环境变量 `VITE_ENABLE_HTTPS=true`
+4. 重启Nginx服务
+
+#### 防火墙设置
+```bash
+# 开放必要端口
+ufw allow 80/tcp    # HTTP
+ufw allow 443/tcp   # HTTPS
+ufw allow 8000/tcp  # 应用直连（可选）
+```
+
+### 🐛 故障排除
+
+#### 常见问题
+
+1. **端口冲突**
+   ```bash
+   # 检查端口占用
+   netstat -tulpn | grep :80
+   # 修改docker-compose.yml中的端口映射
+   ```
+
+2. **权限问题**
+   ```bash
+   # 修复目录权限
+   sudo chown -R 1001:1001 config logs data
+   ```
+
+3. **服务无法启动**
+   ```bash
+   # 查看详细日志
+   docker-compose logs service-name
+   # 检查资源使用
+   docker stats
+   ```
+
+4. **数据库连接失败**
+   ```bash
+   # 检查数据库状态
+   docker-compose exec postgres pg_isready
+   # 重启数据库服务
+   docker-compose restart postgres
+   ```
 
 ## 🔌 集成
 

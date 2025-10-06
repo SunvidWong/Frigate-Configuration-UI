@@ -1,0 +1,77 @@
+# Node modules
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist
+build
+.next
+.nuxt
+
+# Development files
+.env.local
+.env.development
+*.log
+.DS_Store
+Thumbs.db
+
+# Git files
+.git
+.gitignore
+README.md
+docs
+
+# Testing
+coverage
+.nyc_output
+*.test.js
+*.spec.js
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+*.md
+docs/
+
+# Scripts and tools
+*.js
+!server.js
+!src/**/*.js
+start-demo.js
+*-analyzer.js
+*-check.js
+test*.html
+solution*.html
+basic*.html
+css*.html
+tailwind*.html
+page*.html
+ui*.html
+
+# Config files (keep necessary ones)
+eslint.config.js
+postcss.config.js
+tsconfig*.json
+vite.config.ts
+tailwind.config.js
+
+# Lock files (keep package-lock.json)
+package-server.json
+yarn.lock
