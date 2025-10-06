@@ -1,14 +1,12 @@
 # Frigate Configuration UI - 远程部署配置
 # 使用预构建镜像，支持自动拉取和更新
-version: '3.8'
 
 services:
   frigate-config-ui:
-    container_name: frigate-config-ui
     image: ${DOCKER_REGISTRY:-ghcr.io/sunvidwong}/frigate-config-ui:${IMAGE_TAG:-latest}
     restart: unless-stopped
     
-    # 如果镜像是私有的，先 docker login ghcr.io 再 compose up
+    # 如果镜像是私有的，先 docker login 再 compose up
     environment:
       - TZ=Asia/Shanghai
       - NODE_ENV=production
@@ -39,7 +37,7 @@ services:
       - FRIGATE_API_KEY=${FRIGATE_API_KEY}
       
       # 应用配置
-      - DOMAIN=${DOMAIN:-localhost}
+      - DOMAIN=${DOMAIN:-your-domain.com}
       - HTTPS_ENABLED=${HTTPS_ENABLED:-false}
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - MAX_UPLOAD_SIZE=${MAX_UPLOAD_SIZE:-10mb}
@@ -97,8 +95,7 @@ services:
         compress: "true"
 
   nginx:
-    container_name: frigate-nginx
-    image: ${DOCKER_REGISTRY:-nginx}:${NGINX_TAG:-1.25-alpine}
+    image: nginx:${NGINX_TAG:-1.25-alpine}
     restart: unless-stopped
     
     environment:
@@ -143,8 +140,7 @@ services:
         max-file: "3"
 
   redis:
-    container_name: frigate-redis
-    image: ${DOCKER_REGISTRY:-redis}:${REDIS_TAG:-7.2-alpine}
+    image: redis:${REDIS_TAG:-7.2-alpine}
     restart: unless-stopped
     
     environment:
@@ -193,8 +189,7 @@ services:
         max-file: "3"
 
   postgres:
-    container_name: frigate-postgres
-    image: ${DOCKER_REGISTRY:-postgres}:${POSTGRES_TAG:-15.4-alpine}
+    image: postgres:${POSTGRES_TAG:-15.4-alpine}
     restart: unless-stopped
     
     environment:
@@ -239,7 +234,7 @@ services:
         max-file: "3"
 
   watchtower:
-    container_name: frigate-watchtower
+    # 默认不指定容器名，避免与其它部署冲突
     image: containrrr/watchtower:${WATCHTOWER_TAG:-latest}
     restart: unless-stopped
     
@@ -279,8 +274,7 @@ services:
         max-file: "2"
 
   healthcheck:
-    container_name: frigate-healthcheck
-    image: ${DOCKER_REGISTRY:-curlimages}/curl:${CURL_TAG:-latest}
+    image: curlimages/curl:${CURL_TAG:-latest}
     restart: unless-stopped
     
     environment:
