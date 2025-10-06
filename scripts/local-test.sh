@@ -9,8 +9,8 @@ set -euo pipefail
 #   bash scripts/local-test.sh logs      # 查看关键服务日志
 #   bash scripts/local-test.sh reset     # 彻底重置数据卷（慎用）
 
-COMPOSE_FILE="docker-compose.yml"
-PROFILE_ARGS="--profile database"
+COMPOSE_FILE="docker-compose.simple.yml"
+PROFILE_ARGS="" # simple 栈不需要 profile，避免依赖环
 
 info()  { echo -e "[INFO]  $*"; }
 ok()    { echo -e "[OK]    $*"; }
@@ -34,22 +34,32 @@ EOF
   else
     info ".env.local 已存在，跳过创建"
   fi
+  # 如缺失关键变量则追加默认值
+  grep -q '^HTTP_PORT=' .env.local || echo 'HTTP_PORT=8000' >> .env.local
+  grep -q '^POSTGRES_PASSWORD=' .env.local || echo 'POSTGRES_PASSWORD=frigate123' >> .env.local
 }
 
 compose() {
+  # 仅提取必要变量，避免 .env 中带空格值导致解析错误
+  local http_port
+  local pg_pass
+  http_port=$(grep -E '^HTTP_PORT=' .env.local | tail -n1 | cut -d= -f2- | tr -d '"' || echo '')
+  pg_pass=$(grep -E '^POSTGRES_PASSWORD=' .env.local | tail -n1 | cut -d= -f2- | tr -d '"' || echo '')
+  [[ -z "$http_port" ]] && http_port=8000
+  [[ -z "$pg_pass" ]] && pg_pass=frigate123
   # 优先使用 `docker compose`
   if command -v docker >/dev/null 2>&1; then
-    docker compose --env-file .env.local -f "$COMPOSE_FILE" "$@"
+    HTTP_PORT="$http_port" POSTGRES_PASSWORD="$pg_pass" docker compose -f "$COMPOSE_FILE" "$@"
   else
-    docker-compose --env-file .env.local -f "$COMPOSE_FILE" "$@"
+    HTTP_PORT="$http_port" POSTGRES_PASSWORD="$pg_pass" docker-compose -f "$COMPOSE_FILE" "$@"
   fi
 }
 
 cmd_up() {
   need_cmd docker
   ensure_env
-  info "启动本地服务栈（包含数据库 profile）..."
-  compose $PROFILE_ARGS up -d
+  info "使用 simple Compose 启动本地服务栈..."
+  compose up -d
   ok "容器已启动"
   cmd_check
 }

@@ -12,6 +12,11 @@ services:
       - NODE_ENV=production
       - PORT=5550
       - DOMAIN=${DOMAIN:-your-domain.com}
+      - DATABASE_URL=postgresql://frigate:${POSTGRES_PASSWORD:-your_password_here}@postgres:5432/frigate_config
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-local-dev-jwt}
+      - SESSION_SECRET=${SESSION_SECRET:-local-dev-session}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-local-dev-key}
     volumes:
       - ./data:/app/data
       - ./config:/app/config

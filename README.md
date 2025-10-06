@@ -136,7 +136,7 @@ docker compose up -d
   - `bash scripts/local-test.sh reset`
 
 说明：
-- 脚本默认使用 `docker-compose.yml` 并启用 `database` profile；如需仅运行应用，可手动去掉脚本中的 `--profile database` 或直接运行 `docker compose -f docker-compose.yml up -d`。
+- 脚本默认使用 `docker-compose.simple.yml`（仅应用、Postgres、Redis），避免本地 `nginx` 与应用之间的依赖环导致启动失败。如需完整栈请改用 `docker-compose.yml` 或 `docker-compose.prod.yml`。
 - 首次运行会生成 `.env.local`，包含基础变量（例如 `HTTP_PORT=8000`、`POSTGRES_PASSWORD=frigate123`）。如需使用外部数据库/Redis，修改 `.env.local` 中连接信息并在 Compose 中移除对应服务。
 - 健康检查包含：应用 `GET /api/health`、Postgres `pg_isready`、Redis `redis-cli ping`。
 
