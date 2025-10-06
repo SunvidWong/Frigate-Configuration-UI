@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frigate 配置管理界面 - 测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .status {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #4CAF50;
+        }
+        .timestamp {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Frigate 配置管理界面</h1>
+
+        <div class="status">
+            <h2>✅ 应用状态：运行正常</h2>
+            <p>服务器已成功启动，所有功能模块已加载</p>
+        </div>
+
+        <div class="links">
+            <h3>🔗 访问链接</h3>
+            <a href="http://127.0.0.1:7777/" target="_blank">主应用 (端口 7777)</a>
+            <a href="http://127.0.0.1:8888/" target="_blank">备用地址 (端口 8888)</a>
+            <a href="http://10.10.0.213:7777/" target="_blank">网络地址 (7777)</a>
+            <a href="http://10.10.0.213:8888/" target="_blank">网络地址 (8888)</a>
+        </div>
+
+        <div class="timestamp">
+            <p>生成时间: <span id="time"></span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString('zh-CN');
+        setInterval(() => {
+            document.getElementById('time').textContent = new Date().toLocaleString('zh-CN');
+        }, 1000);
+    </script>
+</body>
+</html>

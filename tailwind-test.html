@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind CSS 测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-green': '#34C759',
+                        'ios-orange': '#FF9500',
+                        'ios-red': '#FF3B30',
+                        'ios-purple': '#AF52DE',
+                        'ios-gray': '#8E8E93',
+                        'ios-gray6': '#F2F2F7',
+                    },
+                    borderRadius: {
+                        'ios-md': '12px',
+                    },
+                    boxShadow: {
+                        'ios-md': '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 确保测试类 */
+        .ml-64 { margin-left: 16rem; }
+        .pl-64 { padding-left: 16rem; }
+        .lg\:ml-64 { margin-left: 16rem; }
+        .lg\:pl-64 { padding-left: 16rem; }
+        .min-h-screen { min-height: 100vh; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .w-64 { width: 16rem; }
+        .fixed { position: fixed; }
+        .inset-y-0 { top: 0; bottom: 0; }
+        .left-0 { left: 0; }
+        .z-50 { z-index: 50; }
+        .transform { transform: translateX(var(--tw-translate-x)); }
+        .translate-x-0 { --tw-translate-x: 0px; }
+        .-translate-x-full { --tw-translate-x: -100%; }
+        .translate-x-0 { --tw-translate-x: 0px; }
+        .sticky { position: sticky; }
+        .top-0 { top: 0; }
+        .z-40 { z-index: 40; }
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .border-r { border-right-width: 1px; }
+        .overflow-auto { overflow: auto; }
+        .flex-1 { flex: 1 1 0%; }
+        .bg-white { background-color: rgb(255 255 255); }
+        .bg-ios-gray6 { background-color: #F2F2F7; }
+        .border-gray-200 { border-color: rgb(229 231 235); }
+    </style>
+</head>
+<body class="bg-ios-gray6">
+    <!-- 测试侧边栏布局 -->
+    <div class="min-h-screen flex">
+        <!-- 侧边栏 -->
+        <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200">
+            <div class="h-16 px-4 border-b border-gray-200 flex items-center">
+                <span class="text-lg font-semibold">侧边栏测试</span>
+            </div>
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li><a href="#" class="block px-3 py-2 rounded-lg bg-ios-blue text-white">仪表盘</a></li>
+                    <li><a href="#" class="block px-3 py-2 rounded-lg hover:bg-gray-100">硬件加速器</a></li>
+                    <li><a href="#" class="block px-3 py-2 rounded-lg hover:bg-gray-100">摄像头管理</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <div class="lg:ml-64 flex flex-col flex-1">
+            <!-- 顶部导航栏 -->
+            <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+                <div class="h-16 px-6 flex items-center justify-between">
+                    <h1 class="text-xl font-semibold">顶部导航栏测试</h1>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-600">状态: 运行中</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主内容 -->
+            <main class="flex-1 overflow-auto p-6">
+                <div class="max-w-7xl mx-auto">
+                    <h2 class="text-2xl font-bold mb-6">主内容区域测试</h2>
+
+                    <!-- 测试网格布局 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-ios-md shadow-ios-md p-6">
+                            <h3 class="text-lg font-semibold mb-2">卡片 1</h3>
+                            <p class="text-gray-600">测试内容区域</p>
+                        </div>
+                        <div class="bg-white rounded-ios-md shadow-ios-md p-6">
+                            <h3 class="text-lg font-semibold mb-2">卡片 2</h3>
+                            <p class="text-gray-600">测试内容区域</p>
+                        </div>
+                        <div class="bg-white rounded-ios-md shadow-ios-md p-6">
+                            <h3 class="text-lg font-semibold mb-2">卡片 3</h3>
+                            <p class="text-gray-600">测试内容区域</p>
+                        </div>
+                        <div class="bg-white rounded-ios-md shadow-ios-md p-6">
+                            <h3 class="text-lg font-semibold mb-2">卡片 4</h3>
+                            <p class="text-gray-600">测试内容区域</p>
+                        </div>
+                    </div>
+
+                    <!-- 测试响应式布局 -->
+                    <div class="bg-white rounded-ios-md shadow-ios-md p-6">
+                        <h3 class="text-lg font-semibold mb-4">响应式布局测试</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="bg-ios-blue text-white p-4 rounded-lg">移动端</div>
+                            <div class="bg-ios-green text-white p-4 rounded-lg">小屏幕</div>
+                            <div class="bg-ios-orange text-white p-4 rounded-lg">中等屏幕</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        console.log('Tailwind CSS 测试页面已加载');
+        console.log('测试 ml-64 类:', document.querySelector('.lg\\:ml-64'));
+        console.log('测试 flex 类:', document.querySelector('.flex'));
+        console.log('测试 w-64 类:', document.querySelector('.w-64'));
+    </script>
+</body>
+</html>

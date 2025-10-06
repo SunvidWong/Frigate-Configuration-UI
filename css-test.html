@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-bg-blue { background-color: #007AFF; }
+        .test-bg-green { background-color: #34C759; }
+        .test-bg-red { background-color: #FF3B30; }
+        .test-bg-gray { background-color: #F2F2F7; }
+        .test-shadow { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .test-rounded { border-radius: 8px; }
+    </style>
+</head>
+<body class="test-bg-gray">
+    <div class="p-8">
+        <h1 class="text-2xl font-bold mb-4">CSS 测试页面</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="test-bg-blue text-white p-4 test-rounded test-shadow">
+                <h2 class="text-lg font-semibold">蓝色卡片</h2>
+                <p>这是一个测试卡片，验证CSS样式是否正确加载。</p>
+            </div>
+
+            <div class="test-bg-green text-white p-4 test-rounded test-shadow">
+                <h2 class="text-lg font-semibold">绿色卡片</h2>
+                <p>这是一个测试卡片，验证CSS样式是否正确加载。</p>
+            </div>
+
+            <div class="test-bg-red text-white p-4 test-rounded test-shadow">
+                <h2 class="text-lg font-semibold">红色卡片</h2>
+                <p>这是一个测试卡片，验证CSS样式是否正确加载。</p>
+            </div>
+        </div>
+
+        <div class="mt-8 p-4 bg-white rounded-lg shadow-md">
+            <h2 class="text-lg font-semibold mb-2">Tailwind CSS 测试</h2>
+            <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 bg-blue-500 text-white rounded-full text-sm">bg-blue-500</span>
+                <span class="px-3 py-1 bg-green-500 text-white rounded-full text-sm">bg-green-500</span>
+                <span class="px-3 py-1 bg-red-500 text-white rounded-full text-sm">bg-red-500</span>
+                <span class="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm">bg-yellow-500</span>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-lg font-semibold mb-2">响应式布局测试</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-purple-500 text-white p-4 rounded-lg text-center">移动端</div>
+                <div class="bg-indigo-500 text-white p-4 rounded-lg text-center">小屏幕</div>
+                <div class="bg-pink-500 text-white p-4 rounded-lg text-center">中等屏幕</div>
+                <div class="bg-teal-500 text-white p-4 rounded-lg text-center">大屏幕</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

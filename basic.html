@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frigate配置UI - 基础测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .status {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .links {
+            margin: 30px 0;
+        }
+        .link-item {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .link-item:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+        .info {
+            font-size: 0.9em;
+            color: #9ca3af;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Frigate配置UI</h1>
+        
+        <div class="status">
+            <h3>✅ 服务器状态正常</h3>
+            <p>端口5121已启动并正在运行</p>
+            <p id="time"></p>
+        </div>
+
+        <div class="links">
+            <div class="link-item" onclick="window.location.href='/'">
+                <h4>🚀 主应用</h4>
+                <p>完整的React应用</p>
+            </div>
+            <div class="link-item" onclick="window.location.href='/test.html'">
+                <h4>🧪 静态测试</h4>
+                <p>简单的HTML测试页面</p>
+            </div>
+        </div>
+
+        <div class="info">
+            <p><strong>访问选项:</strong></p>
+            <p>• 本地: http://localhost:5121/</p>
+            <p>• 网络: http://10.10.0.213:5121/</p>
+            <p>• 如果无法访问，请检查浏览器控制台 (F12)</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = '当前时间: ' + new Date().toLocaleString();
+        
+        // 每秒更新时间
+        setInterval(function() {
+            document.getElementById('time').textContent = '当前时间: ' + new Date().toLocaleString();
+        }, 1000);
+
+        console.log('✅ 基础页面加载成功！');
+        console.log('🌐 网络状态:', navigator.onLine ? '在线' : '离线');
+        console.log('📍 用户代理:', navigator.userAgent);
+    </script>
+</body>
+</html>

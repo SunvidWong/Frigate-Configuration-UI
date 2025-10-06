@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/vite.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>frigate-configuration-ui</title>
+  <style type="text/css" data-vite-dev-id="/Users/sunvid/Documents/GitHub/claude/Frigate Configuration UI/src/index.css">:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+</style><style type="text/css" data-vite-dev-id="/Users/sunvid/Documents/GitHub/claude/Frigate Configuration UI/src/pages/Dashboard.css">/* 仪表盘页面响应式栅格与视觉规范 */
+
+.dashboard-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  padding: 0 !important;
+}
+
+/* 页面头部 */
+.page-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 0 !important;
+}
+
+.page-title {
+  margin: 0 !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+}
+
+.page-subtitle {
+  margin: 4px 0 0 0 !important;
+  font-size: 14px !important;
+  color: #a0a0a0 !important;
+  line-height: 1.4 !important;
+}
+
+.last-update {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #a0a0a0 !important;
+  font-size: 13px !important;
+}
+
+/* 统计卡片栅格：默认 1 列；≥768px 两列；≥1024px 四列 */
+.stat-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 20px !important;
+  margin: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .stat-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* 详细信息栅格：默认单列；≥1024px 采用 8/4（2fr/1fr）两列 */
+.detail-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 20px !important;
+  margin: 0 !important;
+}
+
+@media (min-width: 1024px) {
+  .detail-grid {
+    grid-template-columns: 2fr 1fr !important;
+  }
+}
+
+/* 卡片视觉（与部署页一致） */
+.dashboard-card {
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  background: #1a1a1a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 列表行样式（状态条目） */
+.list-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px !important;
+  background: #2a2a2a !important;
+  border: 1px solid #404040 !important;
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.list-row:hover {
+  background: #333333 !important;
+}
+
+.list-row:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* 系统状态组件样式调整 */
+.system-status {
+  margin: 0 !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  border: 1px solid !important;
+}
+
+/* 适配深色背景的文字对比（标题仍为白色） */
+@media (prefers-color-scheme: dark) {
+  .dashboard-card {
+    background: #1a1a1a !important;
+    border-color: #333 !important;
+  }
+  .list-row {
+    background: #2a2a2a !important;
+    border-color: #404040 !important;
+  }
+  .list-row:hover {
+    background: #333333 !important;
+  }
+}</style><style type="text/css" data-vite-dev-id="/Users/sunvid/Documents/GitHub/claude/Frigate Configuration UI/src/pages/DeploymentManagement.css">/* 部署管理页响应式栅格与间距规范 */
+
+/* 默认：单列布局，gap 16px */
+.deploy-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* >=1280px：两列 8/4（以 2fr/1fr 表示）*/
+@media (min-width: 1280px) {
+  .deploy-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+  /* 右侧列强制在第二列 */
+  .deploy-grid .right-column {
+    grid-column: 2;
+  }
+}
+
+/* <=480px：轻微缩小间距，避免拥挤 */
+@media (max-width: 480px) {
+  .deploy-grid {
+    gap: 12px;
+  }
+}
+
+/* YAML 预览区域的响应式高度 */
+.yaml-preview {
+  max-height: 320px;
+}
+
+@media (max-width: 768px) {
+  .yaml-preview {
+    max-height: 260px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .yaml-preview {
+    max-height: 48vh; /* 中屏提高可视区域 */
+  }
+}
+
+@media (min-width: 1280px) {
+  .yaml-preview {
+    max-height: 56vh; /* 大屏更高的预览空间 */
+  }
+}</style><style type="text/css" data-vite-dev-id="/Users/sunvid/Documents/GitHub/claude/Frigate Configuration UI/src/App.css">/* Frigate Configuration UI 样式 */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.app-header {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.app-header h1 {
+  font-size: 3rem;
+  margin: 0;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.app-header p {
+  font-size: 1.2rem;
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-section {
+  max-width: 1200px;
+  width: 100%;
+  text-align: center;
+}
+
+.welcome-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.welcome-section > p {
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.feature-card p {
+  font-size: 1rem;
+  opacity: 0.9;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.action-section {
+  margin-top: 2rem;
+}
+
+.primary-button {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+}
+
+.app-footer {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 2rem;
+  }
+  
+  .welcome-section h2 {
+    font-size: 2rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .feature-card {
+    padding: 1.5rem;
+  }
+  
+  .app-main {
+    padding: 1rem;
+  }
+}
+</style></head>
+  <body>
+    <div id="root"><div class="min-h-screen bg-gray-50 transition-colors duration-200"><div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0 lg:translate-x-0 lg:static lg:inset-0"><div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700"><div class="flex items-center space-x-2"><div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera w-5 h-5 text-white" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg></div><span class="text-lg font-semibold text-gray-900 dark:text-white">Frigate UI</span></div><button class="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div><nav class="mt-4 px-2"><ul class="space-y-1"><li><a href="/" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house mr-3 flex-shrink-0 text-blue-500 dark:text-blue-300" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>仪表盘</a></li><li><a href="/hardware" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu mr-3 flex-shrink-0 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true"><path d="M12 20v2"></path><path d="M12 2v2"></path><path d="M17 20v2"></path><path d="M17 2v2"></path><path d="M2 12h2"></path><path d="M2 17h2"></path><path d="M2 7h2"></path><path d="M20 12h2"></path><path d="M20 17h2"></path><path d="M20 7h2"></path><path d="M7 20v2"></path><path d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>硬件加速器</a></li><li><a href="/cameras" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera mr-3 flex-shrink-0 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg>摄像头管理</a></li><li><a href="/models" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-brain mr-3 flex-shrink-0 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true"><path d="M12 18V5"></path><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"></path><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"></path><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"></path><path d="M18 18a4 4 0 0 0 2-7.464"></path><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"></path><path d="M6 18a4 4 0 0 1-2-7.464"></path><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"></path></svg>AI 模型</a></li><li><a href="/deployment" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play mr-3 flex-shrink-0 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>部署管理</a></li><li><a href="/remote" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe mr-3 flex-shrink-0 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>远程访问</a></li><li><a href="/settings" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings mr-3 flex-shrink-0 text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>系统设置</a></li></ul></nav><div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700"><div class="flex items-center justify-between"><div class="text-xs text-gray-500 dark:text-gray-400">版本 1.0.0</div><button class="p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700" title="切换到深色模式"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></button></div></div></div><div class="flex-1 flex flex-col lg:pl-64"><header class="bg-white shadow-sm border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"><div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8"><button class="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="flex-1 lg:flex-none"><h1 class="text-lg font-semibold text-gray-900 dark:text-white">Frigate Configuration UI</h1></div><div class="flex items-center space-x-4"><button class="relative p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg></button><div class="flex items-center space-x-2"><div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="系统运行正常"></div><span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">运行中</span></div></div></div></header><main class="flex-1 overflow-auto"><div class="p-4 sm:p-6 lg:p-8"><div class="dashboard-container"><div class="page-header"><div><h1 class="page-title">仪表盘</h1><p class="page-subtitle">Frigate Configuration UI 系统概览</p></div><div class="last-update"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg><span>最后更新: 02:16:42</span></div></div><div class="p-4 rounded-lg border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"><div class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert mr-3 text-yellow-500" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg><div><p class="font-medium text-gray-900 dark:text-white">系统状态: 警告</p><p class="text-sm text-gray-600 dark:text-gray-400">未检测到已安装的硬件加速器</p></div></div></div><div class="stat-grid"><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden"><div class="text-gray-700 dark:text-gray-300"><div class="flex items-center"><div class="flex-1"><p class="text-sm font-medium text-gray-600 dark:text-gray-400">硬件加速器</p><p class="text-2xl font-bold text-gray-900 dark:text-white">0/0</p><div class="flex items-center mt-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up mr-1 text-red-500 rotate-180" aria-hidden="true"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg><span class="text-sm text-red-600">0%</span></div></div><div class="p-3 rounded-full bg-blue-500 text-blue-100"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu" aria-hidden="true"><path d="M12 20v2"></path><path d="M12 2v2"></path><path d="M17 20v2"></path><path d="M17 2v2"></path><path d="M2 12h2"></path><path d="M2 17h2"></path><path d="M2 7h2"></path><path d="M20 12h2"></path><path d="M20 17h2"></path><path d="M20 7h2"></path><path d="M7 20v2"></path><path d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg></div></div></div></div><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden"><div class="text-gray-700 dark:text-gray-300"><div class="flex items-center"><div class="flex-1"><p class="text-sm font-medium text-gray-600 dark:text-gray-400">摄像头</p><p class="text-2xl font-bold text-gray-900 dark:text-white">0/0</p><div class="flex items-center mt-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up mr-1 text-green-500 false" aria-hidden="true"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg><span class="text-sm text-green-600">0%</span></div></div><div class="p-3 rounded-full bg-green-500 text-green-100"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg></div></div></div></div><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden"><div class="text-gray-700 dark:text-gray-300"><div class="flex items-center"><div class="flex-1"><p class="text-sm font-medium text-gray-600 dark:text-gray-400">AI 模型</p><p class="text-2xl font-bold text-gray-900 dark:text-white">0/0</p></div><div class="p-3 rounded-full bg-yellow-500 text-yellow-100"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-brain" aria-hidden="true"><path d="M12 18V5"></path><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"></path><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"></path><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"></path><path d="M18 18a4 4 0 0 0 2-7.464"></path><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"></path><path d="M6 18a4 4 0 0 1-2-7.464"></path><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"></path></svg></div></div></div></div><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden"><div class="text-gray-700 dark:text-gray-300"><div class="flex items-center"><div class="flex-1"><p class="text-sm font-medium text-gray-600 dark:text-gray-400">存储使用</p><p class="text-2xl font-bold text-gray-900 dark:text-white">45%</p><div class="flex items-center mt-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up mr-1 text-red-500 rotate-180" aria-hidden="true"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg><span class="text-sm text-red-600">12%</span></div></div><div class="p-3 rounded-full bg-red-500 text-red-100"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hard-drive" aria-hidden="true"><line x1="22" x2="2" y1="12" y2="12"></line><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" x2="6.01" y1="16" y2="16"></line><line x1="10" x2="10.01" y1="16" y2="16"></line></svg></div></div></div></div></div><div class="detail-grid"><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 dashboard-card"><div class="flex items-center justify-between mb-4"><div><h3 class="text-lg font-semibold text-gray-900 dark:text-white">硬件加速器状态</h3></div><div class="flex-shrink-0"><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400 px-3 py-1.5 text-sm"><span class="">查看详情</span></button></div></div><div class="text-gray-700 dark:text-gray-300"><div class="text-center py-8"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu mx-auto text-gray-400 mb-4" aria-hidden="true"><path d="M12 20v2"></path><path d="M12 2v2"></path><path d="M17 20v2"></path><path d="M17 2v2"></path><path d="M2 12h2"></path><path d="M2 17h2"></path><path d="M2 7h2"></path><path d="M20 12h2"></path><path d="M20 17h2"></path><path d="M20 7h2"></path><path d="M7 20v2"></path><path d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg><p class="text-gray-500 dark:text-gray-400">未检测到硬件加速器</p><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-300 px-3 py-1.5 text-sm mt-4"><span class="">扫描硬件</span></button></div></div></div><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700 dashboard-card"><div class="flex items-center justify-between mb-4"><div><h3 class="text-lg font-semibold text-gray-900 dark:text-white">摄像头状态</h3></div><div class="flex-shrink-0"><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400 px-3 py-1.5 text-sm"><span class="">管理摄像头</span></button></div></div><div class="text-gray-700 dark:text-gray-300"><div class="text-center py-8"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera mx-auto text-gray-400 mb-4" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg><p class="text-gray-500 dark:text-gray-400">未配置摄像头</p><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-300 px-3 py-1.5 text-sm mt-4"><span class="">添加摄像头</span></button></div></div></div></div><div class="bg-white rounded-lg dark:bg-gray-800 p-4 shadow-sm border border-gray-200 dark:border-gray-700"><div class="flex items-center justify-between mb-4"><div><h3 class="text-lg font-semibold text-gray-900 dark:text-white">快速操作</h3></div></div><div class="text-gray-700 dark:text-gray-300"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-300 px-4 py-2 text-sm w-full"><span class="mr-2 flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg></span><span class="">一键部署</span></button><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400 px-4 py-2 text-sm w-full"><span class="mr-2 flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu" aria-hidden="true"><path d="M12 20v2"></path><path d="M12 2v2"></path><path d="M17 20v2"></path><path d="M17 2v2"></path><path d="M2 12h2"></path><path d="M2 17h2"></path><path d="M2 7h2"></path><path d="M20 12h2"></path><path d="M20 17h2"></path><path d="M20 7h2"></path><path d="M7 20v2"></path><path d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg></span><span class="">扫描硬件</span></button><button class="inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400 px-4 py-2 text-sm w-full"><span class="mr-2 flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg></span><span class="">扫描摄像头</span></button></div></div></div></div></div></main></div><div class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"></div></div></div>
+    <script type="module" src="/src/main.tsx?t=1759688076496"></script>
+  
+
+</body></html>

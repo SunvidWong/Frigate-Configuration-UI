@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 网络问题解决方案</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .problem {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .solution {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .test-links {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .link-item {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+        .warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        #time {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 网络访问问题解决方案</h1>
+        <p id="time"></p>
+
+        <div class="problem">
+            <h3>🚨 问题诊断结果</h3>
+            <p><strong>根本原因：</strong>系统设置了HTTP代理服务器 (127.0.0.1:1082)，虽然localhost在例外列表中，但代理仍然可能干扰浏览器连接。</p>
+            <div class="code">
+                HTTP代理: 127.0.0.1:1082<br>
+                HTTPS代理: 127.0.0.1:1082<br>
+                VPN接口: utun8 (已激活)
+            </div>
+        </div>
+
+        <div class="solution">
+            <h3>✅ 解决方案</h3>
+            <p><strong>推荐访问方式：</strong></p>
+            <ol>
+                <li>使用IP地址而非localhost (绕过DNS解析)</li>
+                <li>尝试不同的网络接口</li>
+                <li>临时关闭代理/VPN进行测试</li>
+                <li>使用无代理的浏览器模式</li>
+            </ol>
+        </div>
+
+        <div class="test-links">
+            <h3>🧪 测试链接 (按优先级排序)</h3>
+            
+            <a href="http://127.0.0.1:7777/" class="link-item">
+                <h4>🥇 首选：127.0.0.1:7777</h4>
+                <p>使用IP地址，绕过代理问题 - 完整React应用</p>
+            </a>
+
+            <a href="http://10.10.0.213:7777/" class="link-item">
+                <h4>🥈 备选：10.10.0.213:7777</h4>
+                <p>使用网络接口IP - 完整React应用</p>
+            </a>
+
+            <a href="http://127.0.0.1:9000/basic.html" class="link-item">
+                <h4>🥉 简单测试：127.0.0.1:9000/basic.html</h4>
+                <p>静态HTML页面，无JavaScript依赖</p>
+            </a>
+
+            <a href="http://198.18.0.1:7777/" class="link-item">
+                <h4>📱 备选：198.18.0.1:7777</h4>
+                <p>另一个网络接口 - 完整React应用</p>
+            </a>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ 临时解决方法</h3>
+            <p>如果以上链接仍然无法访问，请尝试：</p>
+            <ul>
+                <li>在浏览器中设置忽略代理对localhost的访问</li>
+                <li>使用无痕/隐私浏览模式</li>
+                <li>临时关闭VPN或代理软件</li>
+                <li>清除浏览器缓存和Cookie</li>
+                <li>尝试不同的浏览器 (Safari, Firefox, Chrome)</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3>✨ 技术状态</h3>
+            <p>✅ 服务器正常运行 (端口7777)</p>
+            <p>✅ 网络连通性正常</p>
+            <p>✅ DNS解析正常</p>
+            <p>✅ 防火墙未阻止</p>
+            <p>⚠️ 代理设置可能干扰浏览器访问</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; opacity: 0.7;">
+            <p><small>页面生成时间：<span id="loadTime"></span></small></p>
+            <p><small>如果仍然无法访问，请检查浏览器控制台 (F12) 的错误信息</small></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = '当前时间: ' + new Date().toLocaleString();
+        document.getElementById('loadTime').textContent = new Date().toLocaleString();
+        
+        // 测试网络连接
+        fetch('/api/health')
+            .then(() => {
+                console.log('✅ 网络连接正常');
+            })
+            .catch(() => {
+                console.log('ℹ️ 这是一个静态页面，服务器连接测试在其他链接中');
+            });
+
+        console.log('🔧 诊断页面加载完成');
+        console.log('📝 建议按优先级测试上述链接');
+    </script>
+</body>
+</html>
