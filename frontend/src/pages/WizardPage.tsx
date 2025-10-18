@@ -5,6 +5,16 @@ import CameraConfigStep from '../components/CameraConfigStep'
 import ReviewDeployStep from '../components/ReviewDeployStep'
 import './WizardPage.css'
 
+// 定义 Wizard 数据类型
+interface WizardData {
+  hardware: {
+    instanceName: string
+    hwMode: string
+    hwDevice: string
+  }
+  cameras: any[]
+}
+
 /**
  * 三步向导页面
  *
@@ -12,7 +22,7 @@ import './WizardPage.css'
  */
 function WizardPage() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [wizardData, setWizardData] = useState({
+  const [wizardData, setWizardData] = useState<WizardData>({
     hardware: {
       instanceName: '',
       hwMode: 'cpu',
