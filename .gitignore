@@ -38,7 +38,8 @@ out/
 .nuxt/
 .cache/
 .parcel-cache/
-package-lock.json
+# Note: package-lock.json should be committed for reproducible builds
+# package-lock.json  ← 已移除，应该提交此文件
 yarn.lock
 pnpm-lock.yaml
 
