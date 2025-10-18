@@ -30,9 +30,9 @@
 version: '3.8'
 
 services:
-  frigate-config-ui:
-    image: ghcr.io/sunvidwong/frigate-config-ui:latest
-    container_name: frigate-config-ui
+  frigate-config-backend:
+    image: ghcr.io/sunvidwong/frigate-configuration-ui:latest
+    container_name: frigate-config-backend
     network_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # 必需：Docker socket
@@ -40,6 +40,14 @@ services:
     environment:
       - WEB_PORT=9888
       - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  frigate-config-frontend:
+    image: ghcr.io/sunvidwong/frigate-configuration-ui-frontend:latest
+    container_name: frigate-config-frontend
+    network_mode: "host"
+    depends_on:
+      - frigate-config-backend
     restart: unless-stopped
 ```
 
@@ -193,7 +201,7 @@ sudo systemctl restart docker
 在 `docker-compose.yml` 中添加：
 ```yaml
 services:
-  frigate-config-ui:
+  frigate-config-backend:
     network_mode: "host"  # ← 必须添加
 ```
 
