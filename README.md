@@ -31,7 +31,7 @@ version: '3.8'
 
 services:
   frigate-config-backend:
-    image: ghcr.io/sunvidwong/frigate-configuration-ui:latest
+    image: ghcr.io/sunvidwong/frigate-configuration-ui:001-frigate-webui-deployment
     container_name: frigate-config-backend
     network_mode: "host"
     volumes:
@@ -43,13 +43,18 @@ services:
     restart: unless-stopped
 
   frigate-config-frontend:
-    image: ghcr.io/sunvidwong/frigate-configuration-ui-frontend:latest
+    image: ghcr.io/sunvidwong/frigate-configuration-ui-frontend:001-frigate-webui-deployment
     container_name: frigate-config-frontend
     network_mode: "host"
     depends_on:
       - frigate-config-backend
     restart: unless-stopped
 ```
+
+> **📝 镜像标签说明**：
+> - `001-frigate-webui-deployment` - 开发分支最新构建
+> - `latest` - 将在合并到 master 分支后可用
+> - `v1.0.0` - 版本发布后可用
 
 启动服务：
 

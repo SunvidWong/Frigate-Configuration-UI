@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  frigate-config-backend:
+    # 使用 GitHub Actions 构建的镜像
+    # 镜像命名格式: ghcr.io/用户名/仓库名:分支名或标签
+    image: ghcr.io/sunvidwong/frigate-configuration-ui:001-frigate-webui-deployment
+    container_name: frigate-config-backend
+    network_mode: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # 必需：用于管理 Frigate 实例
+      - ./data:/data  # 数据持久化
+    environment:
+      - WEB_PORT=9888
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  frigate-config-frontend:
+    # 前端镜像
+    image: ghcr.io/sunvidwong/frigate-configuration-ui-frontend:001-frigate-webui-deployment
+    container_name: frigate-config-frontend
+    network_mode: "host"
+    depends_on:
+      - frigate-config-backend
+    restart: unless-stopped
+
+# 说明：
+# 1. 镜像标签说明：
+#    - 001-frigate-webui-deployment: 开发分支的最新构建
+#    - latest: main/master 分支的最新构建（合并后可用）
+#    - v1.0.0: 版本标签（发布版本后可用）
+#
+# 2. 为什么使用 network_mode: "host"？
+#    - 正确检测宿主机网络（而不是 Docker 内部网络 172.x.x.x）
+#    - ONVIF 扫描可以发现局域网内的摄像头
+#    - Frigate 实例可以访问摄像头 RTSP 流
+#
+# 3. 安全建议：
+#    - 仅在可信内网环境使用
+#    - 使用防火墙限制访问来源：
+#      sudo ufw allow from 10.10.0.0/24 to any port 9888
+#    - 不要暴露到公网
+#
+# 4. 如果无法使用 host 网络模式，请参考：
+#    docs/network-detection-alternatives.md
