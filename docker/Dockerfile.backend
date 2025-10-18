@@ -17,8 +17,9 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# 复制应用代码
-COPY backend/ /app/backend/
+# 复制应用代码到 /app（而不是 /app/backend）
+COPY backend/src /app/src
+COPY backend/tests /app/tests
 
 # 设置 Python 路径
 ENV PYTHONPATH=/app
@@ -26,5 +27,9 @@ ENV PYTHONPATH=/app
 # 暴露端口
 EXPOSE 9888
 
-# 启动命令
-CMD ["uvicorn", "backend.src.main:app", "--host", "0.0.0.0", "--port", "9888", "--reload"]
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:9888/api/health || exit 1
+
+# 启动命令（去掉 --reload，生产环境不需要）
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "9888"]
