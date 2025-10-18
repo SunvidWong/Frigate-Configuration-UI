@@ -1,0 +1,62 @@
+{
+  "app": {
+    "title": "Frigate 配置与部署",
+    "welcome": "欢迎使用 Frigate 配置助手"
+  },
+  "wizard": {
+    "step1": "硬件配置",
+    "step2": "摄像头配置",
+    "step3": "复核部署",
+    "next": "下一步",
+    "prev": "上一步",
+    "deploy": "一键部署"
+  },
+  "hardware": {
+    "mode": "硬件模式",
+    "cpu": "CPU",
+    "nvidia": "NVIDIA GPU",
+    "hailo": "Hailo 8L",
+    "image_tag": "镜像标签",
+    "timezone": "时区"
+  },
+  "camera": {
+    "name": "摄像头名称",
+    "ip": "IP 地址",
+    "username": "用户名",
+    "password": "密码",
+    "brand": "品牌",
+    "test_rtsp": "测试 RTSP",
+    "add": "添加摄像头",
+    "onvif_scan": "ONVIF 扫描"
+  },
+  "instance": {
+    "name": "实例名称",
+    "status": "状态",
+    "port": "端口",
+    "actions": "操作",
+    "start": "启动",
+    "stop": "停止",
+    "restart": "重启",
+    "clone": "克隆",
+    "export": "导出配置",
+    "delete": "删除",
+    "view_logs": "查看日志"
+  },
+  "status": {
+    "created": "已创建",
+    "starting": "启动中",
+    "healthy": "运行中",
+    "failed": "失败",
+    "stopped": "已停止"
+  },
+  "errors": {
+    "docker_socket": "未挂载 Docker socket",
+    "docker_daemon": "Docker daemon 不可达",
+    "image_pull": "镜像拉取失败",
+    "port_conflict": "端口冲突",
+    "name_invalid": "名称格式无效",
+    "name_dup": "名称已存在",
+    "name_reserved": "名称为保留关键字",
+    "rtsp_test_fail": "RTSP 测试失败"
+  }
+}

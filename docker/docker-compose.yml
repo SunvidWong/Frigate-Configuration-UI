@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.backend
+    container_name: frigate-config-deploy
+    restart: "no"  # FR-003: 快速失败原则
+    network_mode: "host"  # FIX-001: 使用 host 网络模式以正确检测宿主机网络
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # FR-001: Docker socket 挂载
+      - ../data:/data
+      - ../backend:/app/backend
+    environment:
+      - WEB_PORT=${WEB_PORT:-9888}
+      - TZ=${TZ:-UTC}
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9888/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.frontend
+    container_name: frigate-config-ui
+    restart: "no"
+    network_mode: "host"  # FIX-001: 使用 host 网络模式
+    depends_on:
+      - backend
+
+# 注意：使用 host 网络模式时，不需要定义 networks 和 ports
+# 容器直接使用宿主机的网络栈，端口自动绑定到宿主机
