@@ -22,21 +22,71 @@
 
 ## 🚀 快速开始
 
-### 1. 克隆仓库
+### 方式一：使用 Docker Compose（推荐）
+
+创建 `docker-compose.yml` 文件：
+
+```yaml
+version: '3.8'
+
+services:
+  frigate-config-ui:
+    image: ghcr.io/sunvidwong/frigate-config-ui:latest
+    container_name: frigate-config-ui
+    network_mode: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # 必需：Docker socket
+      - ./data:/data  # 数据持久化
+    environment:
+      - WEB_PORT=9888
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+```
+
+启动服务：
+
+```bash
+docker-compose up -d
+```
+
+访问 WebUI：
+```
+http://localhost:9888
+```
+
+或替换为你的宿主机 IP：
+```
+http://10.10.0.129:9888
+```
+
+> **💡 为什么使用 `network_mode: "host"`？**
+>
+> - ✅ 正确检测宿主机网络（而不是 Docker 内部网络）
+> - ✅ ONVIF 扫描可以发现局域网内的摄像头
+> - ✅ 部署的 Frigate 实例可以访问摄像头 RTSP 流
+>
+> **安全建议**：
+> - 仅在可信内网环境使用
+> - 使用防火墙限制访问来源
+> - 不要暴露到公网
+
+### 方式二：从源码构建
+
+#### 1. 克隆仓库
 
 ```bash
 git clone https://github.com/SunvidWong/Frigate-Configuration-UI.git
 cd Frigate-Configuration-UI
 ```
 
-### 2. 启动服务
+#### 2. 启动服务
 
 ```bash
 cd docker
 docker-compose up -d
 ```
 
-### 3. 访问 WebUI
+#### 3. 访问 WebUI
 
 打开浏览器访问: `http://localhost:9888`
 
@@ -132,6 +182,20 @@ sudo systemctl restart docker
 ```
 
 ## ❓ 常见问题
+
+### Q: 网络检测显示 Docker 内部网络（172.x.x.x）
+
+**问题**：WebUI 显示 `172.18.0.2 172.18.0.0/24` 而不是宿主机网络
+
+**原因**：未使用 host 网络模式
+
+**解决**：
+在 `docker-compose.yml` 中添加：
+```yaml
+services:
+  frigate-config-ui:
+    network_mode: "host"  # ← 必须添加
+```
 
 ### Q: 预检失败：未挂载 Docker socket
 
